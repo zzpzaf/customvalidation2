@@ -159,4 +159,9 @@ public class VendorsRepo {
         return categoriesIdsList;
     }
 
+    public boolean isVendorCategoryAllowed(Integer vendorId, Integer categoryId) throws SQLException {
+        return getVendorAllowedCategories(vendorId).contains(categoryId);
+    }
+
+
 }

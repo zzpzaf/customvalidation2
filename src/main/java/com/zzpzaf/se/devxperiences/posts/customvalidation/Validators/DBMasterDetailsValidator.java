@@ -1,7 +1,6 @@
 package com.zzpzaf.se.devxperiences.posts.customvalidation.Validators;
 
 import java.sql.SQLException;
-import java.util.List;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.springframework.beans.BeanWrapperImpl;
@@ -14,6 +13,9 @@ public class DBMasterDetailsValidator implements ConstraintValidator< DBMasterDe
 
     String fieldName1;
     String fieldName2;
+
+    String field1message;
+    String field2message;
 
     Integer vendorId;
     Integer categoryId;
@@ -41,20 +43,32 @@ public class DBMasterDetailsValidator implements ConstraintValidator< DBMasterDe
         vendorId = (Integer) field1Value;
         categoryId = (Integer) field2Value;
 
-        List<Integer> vendorCategories = null;
-        try {
-            vendorCategories = vendorsRepo.getVendorAllowedCategories(vendorId);
-            //System.out.println(vendorCategories);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        
-        if (vendorCategories == null || vendorCategories.size() <= 0) {
+        if (vendorsRepo.getVendorById(new Long(vendorId)) == null) {
+            this.field1message = "Invalid " + this.fieldName1 + " : " + Integer.toString(vendorId);
+            buildContext(context, this.fieldName1, this.field1message);
             return false;
         }
 
-
-        return vendorCategories.contains(categoryId);
+        boolean allowed = false;
+        try {
+            allowed = vendorsRepo.isVendorCategoryAllowed(vendorId, categoryId);
+            if (!allowed) {
+                this.field2message = this.fieldName2 + " : " + Integer.toString(categoryId) + " is not allowed for the " + this.fieldName1 + " : " + Integer.toString(vendorId);;
+                buildContext(context, this.fieldName2, this.field2message);
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return allowed;
     }
+
+
+    private void buildContext(ConstraintValidatorContext context, String fieldName, String message) {
+        context.disableDefaultConstraintViolation();
+        context.buildConstraintViolationWithTemplate(message)
+               .addPropertyNode(fieldName).addConstraintViolation();
+    }
+
     
 }
