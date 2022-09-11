@@ -5,9 +5,17 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import org.hibernate.validator.constraints.Range;
 
+import com.zzpzaf.se.devxperiences.posts.customvalidation.Validators.DBMasterDetails;
+
 //import com.zzpzaf.se.devxperiences.posts.customvalidation.Validators.OneOfIntegers;
 
 
+@DBMasterDetails.List({ 
+    @DBMasterDetails( 
+    fieldName1 = "itemVendorId", 
+    fieldName2 = "itemCategoryId", 
+    message = "Invalid itemVendorId and/or itemCategoryId!" )
+    }) 
 public class ItemDTO {
     
     @NotNull(message = "The item Name is required!")

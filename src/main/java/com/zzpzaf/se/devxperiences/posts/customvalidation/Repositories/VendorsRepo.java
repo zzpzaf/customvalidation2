@@ -1,6 +1,6 @@
 package com.zzpzaf.se.devxperiences.posts.customvalidation.Repositories;
 
-
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +21,7 @@ public class VendorsRepo {
     private JdbcTemplate jdbcTemplate;
 
     private final String VENDORS_TABLE = "vendors";
+    private final String VENDORCATEGORIES_TABLE = "vendorcategories";
 
     public List<Vendor> getAllVendors() {
 
@@ -131,4 +132,31 @@ public class VendorsRepo {
         }
         return vendor;
     }
+
+
+    public List<Integer> getVendorAllowedCategories(Integer vendorId) throws SQLException {
+        
+
+        List<Integer> categoriesIdsList = new ArrayList<>();
+        //List<Map<String, Object>> rows;
+        
+        String queryString;
+
+
+
+        queryString = "SELECT CategoryId FROM " + 
+                      VENDORCATEGORIES_TABLE + 
+                      " WHERE vendorId = ?" + 
+                      " AND isAllowed = 1";
+        //System.out.println(vendorId + "  " + VENDORCATEGORIES_TABLE);
+        try {
+            categoriesIdsList = (List<Integer>) jdbcTemplate.queryForList(queryString, Integer.class, vendorId);
+            //System.out.println(categoriesIdsList);
+        } catch (Exception e) {
+            throw new SQLException(e.getMessage());
+        }
+
+        return categoriesIdsList;
+    }
+
 }
